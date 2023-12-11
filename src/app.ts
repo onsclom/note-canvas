@@ -1,4 +1,5 @@
 import { getCanvasRect } from "./canvas";
+import { chars } from "./default-font";
 import { keysHeld, keysJustPressed, pointer } from "./input";
 
 const GRID_WIDTH = 5;
@@ -21,10 +22,7 @@ export const createApp = () => ({
   },
   highlightedGridDot: null as null | { x: number; y: number },
   selectedGridDot: null as null | { x: number; y: number },
-
-  // lines: [] as CharLines,
-  chars: (JSON.parse(localStorage["chars"]) ??
-    [...Array(10)].map(() => [])) as CharLines[],
+  chars: (JSON.parse(localStorage["chars"]) ?? chars) as CharLines[],
   curChar: 0,
 });
 
@@ -60,11 +58,19 @@ export function updateApp(app: App) {
     app.selectedGridDot = app.highlightedGridDot;
   } else if (keysJustPressed.has("Escape")) app.selectedGridDot = null;
 
+  if (keysJustPressed.has("p")) console.log(JSON.stringify(app.chars));
   if (keysJustPressed.has("c")) app.chars[app.curChar] = [];
   if (keysJustPressed.has("l")) app.curChar++;
   if (keysJustPressed.has("h")) app.curChar--;
   app.curChar = Math.max(0, Math.min(app.curChar, app.chars.length - 1));
-
+  if (keysJustPressed.has("s"))
+    localStorage.setItem("chars", JSON.stringify(app.chars));
+  if (keysJustPressed.has("x")) app.chars.splice(app.curChar, 1);
+  if (keysJustPressed.has("a")) {
+    app.chars.splice(app.curChar + 1, 0, []);
+    app.curChar++;
+  }
+  if (keysJustPressed.has("i")) app.chars.splice(app.curChar, 0, []);
   const GRID_SPACING = app.editRect.width / GRID_WIDTH;
   if (keysHeld.has("e")) {
     const curCharLines = app.chars[app.curChar];
@@ -84,13 +90,6 @@ export function updateApp(app: App) {
       }
     }
   }
-
-  if (keysJustPressed.has("s")) {
-    localStorage.setItem("chars", JSON.stringify(app.chars));
-  }
-
-  if (keysJustPressed.has("x")) app.chars.splice(app.curChar, 1);
-  if (keysJustPressed.has("a")) app.chars.splice(app.curChar, 0, []);
 }
 
 function distanceToLineSegment(
