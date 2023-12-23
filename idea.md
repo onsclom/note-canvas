@@ -1,0 +1,3 @@
+- the lazy fox test
+- simple fun typing test
+- get a domain for it!
